@@ -1,134 +1,249 @@
-# UPI Fraud Detection & Risk Monitoring System
+# UPI Fraud Detection System
 
-An end-to-end machine learning system for detecting suspicious UPI transactions using behavioral anomaly detection, risk scoring, and a real-time monitoring dashboard.
+An end-to-end **UPI transaction fraud and anomaly detection system** built using Python, Machine Learning, FastAPI, and an interactive web dashboard.
 
-## Project Overview
+The system analyzes transaction behavior, detects suspicious patterns, calculates a risk score, and exposes the detection pipeline through a REST API and dashboard.
 
-Digital payment systems process a large number of transactions, making automated detection of unusual transaction behavior important for fraud monitoring.
+---
 
-This project analyzes UPI transaction behavior and assigns each transaction a risk score based on multiple signals, including:
+## 🚀 Features
 
-* Unusual transaction amount
-* Transaction frequency
-* Recipient repetition
-* Device changes
-* Location changes
-* Late-night activity
-* Time-based behavioral anomalies
+* Synthetic UPI transaction dataset generation
+* Behavioral feature engineering
+* IQR-based statistical anomaly detection
+* Isolation Forest anomaly detection
+* Transaction burst detection
+* Device and location change detection
+* Late-night transaction detection
+* Time-series anomaly detection
+* Weighted fraud risk scoring
+* Risk classification: Low, Medium, High, Critical
+* FastAPI REST API
+* Interactive fraud detection dashboard
+* Fraud alert monitoring
+* Transaction-level risk analysis
+* Model evaluation using precision, recall, F1-score, and false-positive rate
 
-The system combines statistical anomaly detection, machine learning, and rule-based behavioral signals into a unified risk score.
+---
 
-## System Architecture
+## 🏗️ System Architecture
 
 ```text
 UPI Transaction Data
         │
         ▼
-Data Preprocessing
-        │
-        ▼
 Feature Engineering
         │
-        ├───────────────┐
-        ▼               ▼
-   IQR Detection   Isolation Forest
-        │               │
-        └───────┬───────┘
-                ▼
-       Behavioral Signals
-                │
-                ▼
-          Risk Scoring
-                │
-                ▼
-        Fraud Alert Engine
-                │
-        ┌───────┴────────┐
-        ▼                ▼
-   FastAPI Backend    Dashboard
+        ├── Amount Deviation
+        ├── Transaction Frequency
+        ├── Recipient Behavior
+        ├── Device Change
+        ├── Location Change
+        ├── Time Features
+        └── Late-Night Activity
+        │
+        ▼
+Anomaly Detection
+        │
+        ├── IQR Detection
+        ├── Isolation Forest
+        └── Time-Series Analysis
+        │
+        ▼
+Behavioral Risk Scoring
+        │
+        ▼
+Risk Classification
+        │
+        ├── Low
+        ├── Medium
+        ├── High
+        └── Critical
+        │
+        ▼
+FastAPI
+        │
+        ▼
+Interactive Dashboard
 ```
 
-## Key Features
+---
 
-### Machine Learning
+## 🧠 Machine Learning Approach
 
-* Isolation Forest anomaly detection
-* IQR-based statistical anomaly detection
-* Behavioral transaction analysis
-* Time-based anomaly detection
-* Multi-signal risk scoring
+The system uses a **hybrid anomaly detection approach** that combines statistical analysis, machine learning, and transaction behavior.
 
-### Risk Scoring
+### 1. Feature Engineering
 
-The final risk score combines multiple detection signals:
+The following behavioral features are generated for each transaction:
+
+* Amount deviation from normal user behavior
+* Number of transactions in the last 1 hour
+* Recipient repeat count
+* Device change indicator
+* Location change indicator
+* Transaction hour
+* Day of week
+* Weekend indicator
+* Late-night transaction indicator
+
+These features help identify unusual transaction behavior rather than relying only on transaction amount.
+
+### 2. IQR-Based Anomaly Detection
+
+The **Interquartile Range (IQR)** method is used to identify statistical outliers in transaction behavior.
+
+Transactions falling outside the calculated IQR boundaries receive an anomaly signal.
+
+### 3. Isolation Forest
+
+**Isolation Forest** is used as an unsupervised anomaly detection model.
+
+It identifies transactions that are significantly different from the general transaction population.
+
+### 4. Behavioral Signals
+
+Additional behavioral signals are incorporated into the final risk score:
+
+* Transaction bursts
+* Device changes
+* Location changes
+* Late-night activity
+* Time-series anomalies
+
+### 5. Final Risk Score
+
+The final risk score is calculated using weighted anomaly and behavioral signals.
 
 | Signal              | Weight |
 | ------------------- | -----: |
-| Isolation Forest    |    35% |
-| Transaction Burst   |    25% |
-| IQR Anomaly         |    15% |
-| Time-Series Anomaly |    10% |
-| Device Change       |     5% |
-| Location Change     |     5% |
-| Late-Night Activity |     5% |
+| IQR Anomaly         |     15 |
+| Isolation Forest    |     35 |
+| Transaction Burst   |     25 |
+| Device Changed      |      5 |
+| Location Changed    |      5 |
+| Late Night          |      5 |
+| Time-Series Anomaly |     10 |
 
-Risk levels:
+The final alert threshold is **50**.
 
-* **0–29:** Low
-* **30–49:** Medium
-* **50–69:** High
-* **70–100:** Critical
+### Risk Classification
 
-Transactions with a risk score of 50 or above are classified as alerts.
+| Risk Score | Risk Level |
+| ---------: | ---------- |
+|       0–29 | Low        |
+|      30–49 | Medium     |
+|      50–69 | High       |
+|     70–100 | Critical   |
 
-## Dataset
+---
 
-The project uses a synthetically generated UPI transaction dataset containing:
+## 📊 Model Evaluation
 
-* 10,000 transactions
-* 1,000 users
-* Transaction amounts
-* User behavior
-* Device information
-* Location changes
-* Transaction frequency
-* Time-based features
+The final risk-scoring system was evaluated against the suspicious-transaction labels generated during the synthetic dataset creation process.
 
-Suspicious transactions were synthetically injected using behavioral patterns such as unusually high transaction amounts, transaction bursts, device changes, location changes, and late-night activity.
+At the selected risk-score threshold of **50**, the system achieved:
 
-**Important:** Because the dataset and suspicious labels are synthetic, the evaluation results are illustrative and should not be interpreted as real-world fraud detection performance.
+| Metric              | Result |
+| ------------------- | -----: |
+| Precision           | 43.36% |
+| Recall              | 34.60% |
+| F1 Score            | 38.49% |
+| False Positive Rate |  2.38% |
 
-## Model Evaluation
+### Model / Method Comparison
 
-Using the selected risk threshold of 50, the system produced:
+| Model / Method        | Purpose                             |
+| --------------------- | ----------------------------------- |
+| Logistic Regression   | Baseline classification             |
+| Decision Tree         | Classification using decision rules |
+| Random Forest         | Ensemble classification             |
+| Isolation Forest      | Unsupervised anomaly detection      |
+| IQR                   | Statistical outlier detection       |
+| Behavioral Risk Score | Final fraud-alert decision          |
 
-* Precision: **43.36%**
-* Recall: **34.60%**
-* F1 Score: **38.49%**
-* False Positive Rate: **2.38%**
+### Evaluation Limitation
 
-The system generated **399 alerts** from the synthetic transaction dataset.
+The dataset used in this project is **synthetically generated**, and suspicious transactions were injected using predefined behavioral patterns.
 
-These metrics are specific to the synthetic data and injected anomaly-generation process.
+Therefore, the reported metrics are intended to demonstrate the implementation and evaluation workflow and **should not be interpreted as real-world fraud detection performance**.
 
-## FastAPI Backend
+A production fraud detection system would require historical transaction data, confirmed fraud labels, continuous monitoring, threshold optimization, and validation against real-world fraud cases.
 
-The project exposes the fraud detection system through a FastAPI backend.
+---
 
-### Endpoints
+## 📸 Dashboard Preview
 
-| Method | Endpoint                        | Purpose                          |
-| ------ | ------------------------------- | -------------------------------- |
-| GET    | `/`                             | API information                  |
-| GET    | `/health`                       | Health check                     |
-| POST   | `/predict`                      | Analyze a transaction            |
-| GET    | `/alerts`                       | Retrieve generated alerts        |
-| GET    | `/transaction/{transaction_id}` | Retrieve transaction information |
-| GET    | `/docs`                         | Interactive API documentation    |
+The project includes an interactive dashboard for monitoring suspicious UPI transactions and analyzing individual transactions.
 
-### Example
+### Dashboard Overview
 
-A transaction can be submitted to `/predict` with behavioral features such as:
+![UPI Fraud Detection Dashboard](images/dashboard-overview.png)
+
+The main dashboard provides:
+
+* Total transaction statistics
+* Fraud alert statistics
+* Risk distribution
+* Interactive transaction analysis
+* Recent fraud alerts
+* API connection status
+
+### Transaction Risk Analysis
+
+![Transaction Risk Analysis](images/transaction-analysis.png)
+
+The transaction analyzer allows users to submit transaction characteristics and receive a calculated:
+
+* Risk score
+* Risk level
+* Fraud alert status
+* Prediction result
+
+### Fraud Alerts
+
+![Fraud Alerts](images/fraud-alerts.png)
+
+The fraud alert table provides transaction-level visibility into suspicious activity and allows users to review detected alerts.
+
+---
+
+## 🔌 API Usage
+
+The project provides a **FastAPI REST API** for transaction risk analysis.
+
+### Start the API
+
+```bash
+conda activate upi-fraud
+D:
+cd D:\UPI-Fraud-Detection
+
+python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
+```
+
+### Health Check
+
+```http
+GET /health
+```
+
+Example response:
+
+```json
+{
+  "status": "healthy",
+  "service": "UPI Fraud Detection API"
+}
+```
+
+### Predict Transaction Risk
+
+```http
+POST /predict
+```
+
+Example request:
 
 ```json
 {
@@ -146,60 +261,36 @@ A transaction can be submitted to `/predict` with behavioral features such as:
 }
 ```
 
-The API returns a calculated risk score and risk classification.
+Example response:
 
-## Dashboard
-
-A web-based monitoring dashboard is included in:
-
-```text
-dashboard/fraud-detection-dashboard.html
+```json
+{
+  "transaction_id": "TEST_000001",
+  "risk_score": 78,
+  "risk_level": "Critical",
+  "is_alert": true
+}
 ```
 
-The dashboard connects directly to the FastAPI backend and provides:
+### Available Endpoints
 
-* API connection status
-* Total fraud alerts
-* High-risk transactions
-* Critical-risk transactions
-* Risk distribution
-* Recent fraud alerts
-* Transaction risk analysis
-* Risk score visualization
+| Method | Endpoint                        | Description                  |
+| ------ | ------------------------------- | ---------------------------- |
+| GET    | `/`                             | API information              |
+| GET    | `/health`                       | API health check             |
+| POST   | `/predict`                      | Predict transaction risk     |
+| GET    | `/alerts`                       | Retrieve fraud alerts        |
+| GET    | `/transaction/{transaction_id}` | Retrieve transaction details |
 
-## Technology Stack
+Interactive API documentation:
 
-**Programming:** Python
+```text
+http://127.0.0.1:8000/docs
+```
 
-**Data Analysis:**
+---
 
-* Pandas
-* NumPy
-
-**Machine Learning:**
-
-* Scikit-learn
-* Isolation Forest
-
-**Backend:**
-
-* FastAPI
-* Uvicorn
-* Pydantic
-
-**Visualization:**
-
-* Matplotlib
-* Seaborn
-* HTML/JavaScript dashboard
-
-**Development:**
-
-* JupyterLab
-* Anaconda
-* VS Code
-
-## Project Structure
+## 📁 Project Structure
 
 ```text
 UPI-Fraud-Detection/
@@ -216,64 +307,106 @@ UPI-Fraud-Detection/
 ├── data/
 │   ├── raw/
 │   │   └── upi_transactions.csv
+│   │
 │   └── processed/
 │       ├── features.csv
 │       └── alerts.csv
 │
+├── images/
+│   ├── dashboard-overview.png
+│   ├── transaction-analysis.png
+│   └── fraud-alerts.png
+│
 ├── models/
 │   ├── isolation_forest.pkl
-│   ├── model_metadata.pkl
-│   └── iqr_metadata.pkl
+│   ├── iqr_metadata.pkl
+│   └── model_metadata.pkl
 │
 ├── notebooks/
-│   └── Project notebooks
 │
 ├── .gitignore
-├── requirements.txt
-└── README.md
+├── README.md
+└── requirements.txt
 ```
 
-## How to Run
+---
 
-### 1. Clone the repository
+## 🛠️ Tech Stack
+
+### Programming
+
+* Python
+
+### Data Processing
+
+* Pandas
+* NumPy
+
+### Machine Learning
+
+* Scikit-learn
+* Isolation Forest
+
+### Statistical Analysis
+
+* IQR-based anomaly detection
+
+### API
+
+* FastAPI
+* Uvicorn
+* Pydantic
+
+### Visualization
+
+* HTML
+* CSS
+* JavaScript
+* Chart.js
+
+### Development
+
+* Jupyter
+* Anaconda
+* Git
+* GitHub
+
+---
+
+## ▶️ How to Run
+
+### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/Abhinav1805003/UPI-Fraud-Detection.git
 cd UPI-Fraud-Detection
 ```
 
-### 2. Create the environment
+### 2. Create / Activate the Environment
 
 ```bash
-conda create -n upi-fraud python=3.11
 conda activate upi-fraud
 ```
 
-### 3. Install dependencies
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Start the API
+### 4. Start the FastAPI Server
 
 ```bash
 python -m uvicorn api.main:app --host 127.0.0.1 --port 8000
 ```
 
-The API will be available at:
-
-```text
-http://127.0.0.1:8000
-```
-
-Interactive documentation:
+### 5. Open the API Documentation
 
 ```text
 http://127.0.0.1:8000/docs
 ```
 
-### 5. Open the dashboard
+### 6. Open the Dashboard
 
 Open:
 
@@ -281,35 +414,39 @@ Open:
 dashboard/fraud-detection-dashboard.html
 ```
 
-in a web browser while the FastAPI server is running.
+with the FastAPI server running.
 
-## Limitations
+---
 
-* The dataset is synthetic.
-* Suspicious transaction labels are based on injected behavioral patterns.
-* The system is intended as a portfolio and demonstration project rather than a production fraud detection system.
-* Real-world deployment would require historical transaction data, stronger validation, model monitoring, threshold optimization, and integration with production payment infrastructure.
-* Time-series detection requires transaction history and therefore is not independently calculated for a single `/predict` request.
+## ⚠️ Limitations
 
-## Future Improvements
+* Dataset is synthetically generated.
+* Fraud labels are based on injected behavioral patterns.
+* Evaluation metrics are therefore illustrative.
+* Real-world fraud detection requires historical confirmed-fraud data.
+* The current API prediction endpoint evaluates the provided transaction features without maintaining a live transaction history.
+* Time-series context requires historical transaction data for reliable production implementation.
 
-Potential improvements include:
+---
 
-* Real transaction data integration
-* Advanced anomaly detection models
-* Real-time streaming detection
-* User-specific behavioral baselines
-* Model monitoring and drift detection
-* Explainable AI for fraud alerts
-* Authentication and API security
-* Database integration
-* Cloud deployment
-* Automated alert notifications
+## 🔮 Future Improvements
 
-## Author
+* Train and validate using real-world transaction datasets
+* Add real-time transaction streaming
+* Implement user-level behavioral baselines
+* Add explainable AI for individual fraud predictions
+* Add automated model retraining
+* Add database integration
+* Add authentication and API security
+* Deploy the FastAPI service to the cloud
+* Add production monitoring and model drift detection
+
+---
+
+## 👨‍💻 Author
 
 **Abhinav Yadav**
 
-B.Tech Computer Science
+B.Tech Computer Science Engineering
 
-GitHub: `github.com/Abhinav1805003`
+GitHub: https://github.com/Abhinav1805003
